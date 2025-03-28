@@ -1,3 +1,12 @@
+'''Have used a combo of zero-shot classifier and fallback to LLM if complex, this gives faster and lightweight processing,
+but if contexual accuracy is very important would just go with an LLM 
+(also using a classifier in house might lead us to outdated tech as LLMs these days are improving quick)
+Might consider using LLMs if cost dosen't really matter mmuch
+
+Also currently anthropic API calls are repeated across the codebase (generate_answer, classify_document).
+To improve that we would create `AnthropicClient` class. Single place to manage headers, model version,
+cleaner and easier to update and cache
+'''
 from transformers import pipeline
 import requests
 import os

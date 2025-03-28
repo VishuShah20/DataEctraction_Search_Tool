@@ -1,3 +1,10 @@
+'''
+Using blocking I/O (boto3/psycopg2) currently, would move to ioboto3 and asyncpg to allow concurrent async requests
+Would cache S3 object listing using in-memory cache or index keys in Postgresql to reduce response time and cost
+
+code improvements:
+Would improve naming convention. like documents/{email}/{filename}.pdf to avoid collisions 
+and parallel uploads'''
 import boto3
 import os
 
@@ -9,10 +16,9 @@ EXTRACTED_TEXTS_FOLDER = "extractedtexts/"
 s3_client = boto3.client("s3", region_name=AWS_REGION)
 
 def upload_file_to_s3(file_path: str, email: str, file_type: str):
-    """
-    Upload a file to S3. Email is used as a prefix in the filename, not as a folder.
-    file_type is either "documents" or "extractedtexts".
-    """
+    
+    #Upload a file to S3. Email is used as a prefix in the filename, not as a folder. file_type is either "documents" or "extractedtexts".
+    
     original_filename = os.path.basename(file_path)
     s3_key = f"{file_type}/{email}_{original_filename}"
     print(f"Uploading to S3: {s3_key}") 
@@ -52,10 +58,8 @@ def upload_document_and_text(document_path: str, extracted_text: str):
     return s3_doc_path, s3_text_path
 
 def get_documents_for_user(email: str):
-    """
-    Fetch the list of documents stored in the S3 bucket for the user.
-    Uses email as a prefix to search documents in the S3 'documents' folder.
-    """
+    
+    #Fetch the list of documents stored in the S3 bucket for the user. Uses email as a prefix to search documents in the S3 'documents' folder.
     try:
         # List all docs with email prefix
         response = s3_client.list_objects_v2(Bucket=BUCKET_NAME, Prefix=f"documents/{email}_")

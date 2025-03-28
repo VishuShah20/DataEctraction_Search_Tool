@@ -1,3 +1,9 @@
+'''Would use a managed DB (like AWS RDS) with auto scaling for high traffic'''
+'''Have used two seperate tables for for invoices and purchase orders that would give
+better read speed, strong typing, and reduces edge case handling in extraction, but is costlier.
+Could implement union schema for flexibility if required
+
+Would use Pydantic model instead of raw dict parsing'''
 import psycopg2
 from dotenv import load_dotenv
 import os
@@ -56,7 +62,7 @@ def insert_invoice_data(data: dict):
         """, (user_email, document_name, invoice_number, invoice_date, total_amount, vendor_name, datetime.now()))
 
         conn.commit()
-        print(f"✅ Invoice data inserted for {user_email}")
+        print(f" Invoice data inserted for {user_email}")
 
     except Exception as e:
         # More detailed debugging: log the error
@@ -124,9 +130,9 @@ def insert_purchase_order_data(data: dict):
 
 
 def get_invoice_by_document(document_name: str, email: str):
-    """
-    Fetch invoice details by document name (or any identifier) and user email.
-    """
+    
+    #Fetch invoice details by document name (or any identifier) and user email.
+    
     conn = connect_db()
     if conn is None:
         print("Error: Unable to connect to the database")
@@ -165,9 +171,9 @@ def get_invoice_by_document(document_name: str, email: str):
 
 # Fetch invoices by email
 def get_invoices_by_email(email: str):
-    """
-    Fetch all invoices associated with the user's email.
-    """
+    
+    #Fetch all invoices associated with the user's email.
+    
     conn = connect_db()
     cursor = conn.cursor()
 
@@ -200,9 +206,9 @@ def get_invoices_by_email(email: str):
 
 # Fetch purchase orders by email
 def get_purchase_orders_by_email(email: str):
-    """
-    Fetch all purchase orders associated with the user's email.
-    """
+    
+    #Fetch all purchase orders associated with the user's email.
+    
     conn = connect_db()
     cursor = conn.cursor()
 

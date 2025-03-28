@@ -1,3 +1,22 @@
+''' For scaling search, consider OpenSearch with indexing and a reranker. 
+For highest accuracy, a full RAG pipeline could be used (higher infra cost)'''
+
+'''approach 1(full doc search): here we use fuzzy search + LLM (that would be costlier), has better context
+so would answer even arbitrary ques, but might miss details, however we have extracted those already.
+It is also expensive and slow if alot of queries come in
+
+approach 2(searching the postgres): faster querying and could introduce filters as well. dosen't work
+well for contexual questions
+
+approach 3(hybrid): might go with this. first search sql if the answer is there, if not, then fallback to full
+search.
+
+For increased volume would batch N documents and send a bulk prompt
+
+code optimzations:
+Woudl use smaller chunks (sliding window/top 3 results)
+Would use token truncation and summarization pre-step for large docs
+Would  add session cacheing to maintain chat context'''
 from fuzzywuzzy import fuzz
 from dotenv import load_dotenv
 import os

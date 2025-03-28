@@ -1,3 +1,7 @@
+'''Would explore OCR if docs are complex or images, probably integrate using Tesseract or AWS Textract
+
+code improvisation:
+Im using regex here, but i would use json.loads() first, wrapped up in a try catch and only use regex for fallback '''
 import fitz  
 import os
 import requests
