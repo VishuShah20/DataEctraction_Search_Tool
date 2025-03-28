@@ -4,7 +4,8 @@ Would cache S3 object listing using in-memory cache or index keys in Postgresql 
 
 code improvements:
 Would improve naming convention. like documents/{email}/{filename}.pdf to avoid collisions 
-and parallel uploads'''
+and parallel uploads
+Would use presigned URLs for S3 uploads to upload multiple'''
 import boto3
 import os
 

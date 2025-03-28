@@ -114,7 +114,7 @@ const FileUpload: React.FC = () => {
                                 {documents.map((doc, index) => (
                                     <li key={index}>
                                         {/* Link to download the doc*/}
-                                        <a href={`https://s3.amazonaws.com/gentlyai/${doc.document_url}`} target="_blank" rel="noopener noreferrer">
+                                        <a href={doc.document_url} target="_blank" rel="noopener noreferrer">
                                             {doc.document_name}
                                         </a>
                                     </li>
