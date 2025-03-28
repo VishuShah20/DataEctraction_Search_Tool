@@ -26,7 +26,7 @@ def upload_file_to_s3(file_path: str, email: str, file_type: str):
     try:
         with open(file_path, "rb") as file_data:
             s3_client.upload_fileobj(file_data, BUCKET_NAME, s3_key)
-            print(f"✅ Uploaded {file_path} to s3://{BUCKET_NAME}/{s3_key}")
+            print(f"Uploaded {file_path} to s3://{BUCKET_NAME}/{s3_key}")
             return s3_key
     except Exception as e:
         print(f" Error uploading file: {e}")
