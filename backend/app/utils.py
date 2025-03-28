@@ -1,4 +1,4 @@
-import fitz  # PyMuPDF
+import fitz  
 import os
 import requests
 from dotenv import load_dotenv
@@ -6,24 +6,21 @@ import re
 from app.database import insert_invoice_data, insert_purchase_order_data
 import json
 
-# Load environment variables
 load_dotenv()
 
-# Anthropic API key and endpoint
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
 
 def extract_text_from_pdf(pdf_path: str) -> str:
     """
-    Extracts text from a PDF document.
+    Extracts text from a PDF document
     """
     document = fitz.open(pdf_path)
     text = ""
 
-    # Loop through the pages and extract text
     for page_num in range(document.page_count):
         page = document.load_page(page_num)
-        text += page.get_text()  # Extract text from each page
+        text += page.get_text()  # extract text from each page
     
     return text
 
@@ -81,25 +78,23 @@ def extract_purchase_order_details_with_anthropic(text: str, document_type: str)
 
 def process_extracted_data(extracted_text: str, document_type: str):
     """
-    Process the extracted text into a structured dictionary with key-value pairs.
+    process the extracted text into a structured dictionary
     """
-    # Clean up any unwanted text
+    # Clean up
     extracted_text = extracted_text.strip()
     print(f"Stripped text: {extracted_text}")
     
-    # Try to convert the extracted text into JSON
+    # convert to json
     extracted_data = {}
 
     if document_type == "invoice":
     
         try:
-            # Manually parse the required fields (invoice_number, invoice_date, etc.)
             invoice_number = re.search(r'"invoice_number":\s*"([^"]*)"', extracted_text)
             invoice_date = re.search(r'"invoice_date":\s*"([^"]*)"', extracted_text)
             total_amount = re.search(r'"total_amount":\s*"([^"]*)"', extracted_text)
             vendor_name = re.search(r'"vendor_name":\s*"([^"]*)"', extracted_text)
 
-            # Assign the values if found, else None
             extracted_data["invoice_number"] = invoice_number.group(1) if invoice_number else None
             extracted_data["invoice_date"] = invoice_date.group(1) if invoice_date else None
             extracted_data["total_amount"] = total_amount.group(1) if total_amount else None
@@ -111,13 +106,11 @@ def process_extracted_data(extracted_text: str, document_type: str):
         
     elif document_type == "purchase order":
         try:
-            # Manually parse the required fields (purchase_order_number, order_date, etc.)
             purchase_order_number = re.search(r'"Purchase Order Number":\s*"([^"]*)"', extracted_text)
             order_date = re.search(r'"Order Date":\s*"([^"]*)"', extracted_text)
             total_amount = re.search(r'"Total Amount":\s*"([^"]*)"', extracted_text)
             supplier_name = re.search(r'"Supplier Name":\s*"([^"]*)"', extracted_text)
 
-            # Assign the values if found, else None
             extracted_data["purchase_order_number"] = purchase_order_number.group(1) if purchase_order_number else None
             extracted_data["order_date"] = order_date.group(1) if order_date else None
             extracted_data["total_amount"] = total_amount.group(1) if total_amount else None
@@ -133,9 +126,6 @@ def process_extracted_data(extracted_text: str, document_type: str):
 
 
 def call_anthropic(prompt: str, document_type: str):
-    """
-    Call Anthropic's LLM API to extract details from the document.
-    """
 
     headers = {
         "x-api-key": ANTHROPIC_API_KEY,
@@ -170,10 +160,6 @@ def call_anthropic(prompt: str, document_type: str):
         return None
 
 def extract_data_based_on_type(text: str, document_type: str, email: str, document_name: str):
-    """
-    Extracts the relevant data from the document based on its type (invoice or purchase order).
-    Uses Anthropic LLM for extraction.
-    """
     print(f"Document type passed on: {document_type}")
     if document_type == "invoice":
         print(f"Extracting invoice details for {email} from {document_name}")

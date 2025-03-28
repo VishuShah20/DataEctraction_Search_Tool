@@ -4,30 +4,28 @@ import os
 import requests
 from app.s3_utils import get_s3_documents, get_s3_file_content
 
-# Load environment variables
 load_dotenv()
 
-# Anthropic API key and endpoint
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
 
 EXTRACTED_TEXTS_FOLDER = "extractedtexts/"
 
-# Function to search documents in S3 using fuzzy matching
+#search documents in S3 using fuzzy matching
 def search_documents(query: str, email: str):
     documents = get_s3_documents(email)
-    print(f"\n📂 Fetched {len(documents)} documents for {email}: {documents}")
+    print(f"\n Fetched {len(documents)} documents for {email}: {documents}")
 
     results = []
 
     for doc_name in documents:
         s3_key = f"{EXTRACTED_TEXTS_FOLDER}{doc_name}"
         file_content = get_s3_file_content(s3_key)
-        print(f"\n📄 Reading file: {s3_key}")
-        print(f"📑 Content size: {len(file_content)} characters")
+        print(f"\nReading file: {s3_key}")
+        print(f"Content size: {len(file_content)} characters")
 
         if not file_content.strip():
-            print("⚠️ Skipping empty file.")
+            print("Skipping empty file.")
             continue
 
         lines = file_content.split("\n")
@@ -36,7 +34,7 @@ def search_documents(query: str, email: str):
             line_score = fuzz.partial_ratio(query, line)
             if line_score > top_score:
                 top_score = line_score
-        print(f"🔍 Top score for {doc_name}: {top_score}")
+        print(f"Top score for {doc_name}: {top_score}")
 
         if top_score > 50:
             relevant_text = extract_relevant_text(file_content, query)
@@ -47,19 +45,19 @@ def search_documents(query: str, email: str):
             })
 
     results.sort(key=lambda x: x["score"], reverse=True)
-    print(f"\n✅ Returning {len(results)} matching documents.")
+    print(f"\nReturning {len(results)} matching documents.")
     return results
 
-# Function to extract relevant text for the query
+#Function to extract relevant text for the query
 def extract_relevant_text(doc_text: str, query: str):
-    lines = doc_text.split("\n")  # Split the text into lines (or use paragraphs)
+    lines = doc_text.split("\n")  # split
     relevant_text = ""
     for line in lines:
-        if fuzz.partial_ratio(query, line) > 50:  # Compare query to each line using fuzzy matching
+        if fuzz.partial_ratio(query, line) > 50:  # comparing query to each line using fuzzy matching
             relevant_text += line + "\n"
     return relevant_text
 
-# Function to generate an answer from the relevant document content using Anthropic's Claude 3 model
+# function to generate an answer from the relevant document content
 def generate_answer(relevant_text: str, query: str):
     prompt = f"Answer the following question based on the text below:\n\nText:\n{relevant_text}\n\nQuestion: {query}\nAnswer:"
 
@@ -70,7 +68,7 @@ def generate_answer(relevant_text: str, query: str):
     }
 
     data = {
-        "model": "claude-3-opus-20240229",  # Claude model
+        "model": "claude-3-opus-20240229",  
         "max_tokens": 1000,
         "temperature": 0.7,
         "system": "You are a helpful assistant that answers questions based on text.",

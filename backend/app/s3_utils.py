@@ -1,14 +1,11 @@
-# s3_utils.py
-
 import boto3
 import os
 
-# AWS S3 settings
-AWS_REGION = "us-east-2"  # Replace with your AWS region
-BUCKET_NAME = "gentlyai"  # Your S3 bucket name
+AWS_REGION = "us-east-2"  
+BUCKET_NAME = "gentlyai"  
 EXTRACTED_TEXTS_FOLDER = "extractedtexts/"
 
-# Initialize the S3 client (no explicit credentials needed if bucket policy allows public writes)
+#initialize the S3 client(bucket has public access)
 s3_client = boto3.client("s3", region_name=AWS_REGION)
 
 def upload_file_to_s3(file_path: str, email: str, file_type: str):
@@ -31,21 +28,21 @@ def upload_file_to_s3(file_path: str, email: str, file_type: str):
 
 def upload_document_and_text(document_path: str, extracted_text: str):
     """
-    Uploads the original document and its extracted text (as a .txt file) to S3.
+    uploads the original document and its extracted text (as a .txt file) to S3.
     Returns the S3 keys for both uploads.
     """
-    # Generate unique filenames to avoid collisions
+    #generate unique filenames to avoid collisions
     doc_filename = document_path
     text_filename = document_path + ".txt"
     
-    # Define S3 paths (folder structure inside the bucket)
+    #Define S3 paths (folder structure inside the bucket)
     s3_doc_path = f"documents/{doc_filename}"
     s3_text_path = f"extractedtexts/{text_filename}"
     
     # Upload the document
     upload_file_to_s3(document_path, s3_doc_path)
     
-    # Create a temporary text file for the extracted text
+    #Create a temporary text file
     text_file_path = document_path + ".txt"
     with open(text_file_path, "w") as f:
         f.write(extracted_text)
@@ -60,14 +57,13 @@ def get_documents_for_user(email: str):
     Uses email as a prefix to search documents in the S3 'documents' folder.
     """
     try:
-        # List all objects in the 'documents' folder that start with the email prefix
+        # List all docs with email prefix
         response = s3_client.list_objects_v2(Bucket=BUCKET_NAME, Prefix=f"documents/{email}_")
 
-        # Check if the response contains any documents
         if 'Contents' not in response:
             return []
 
-        # Extract document names and generate their download URLs
+        # extract doc names and urls
         documents = []
         for obj in response['Contents']:
             s3_key = obj['Key']
@@ -85,16 +81,16 @@ def get_documents_for_user(email: str):
 
 def get_s3_documents(email: str):
     prefix = f"{EXTRACTED_TEXTS_FOLDER}{email}_"
-    print(f"\n🔍 S3 Search Prefix: {prefix}")
+    print(f"\n S3 Search Prefix: {prefix}")
     
     response = s3_client.list_objects_v2(Bucket=BUCKET_NAME, Prefix=prefix)
-    print(f"📦 Raw S3 Response: {response}")
+    print(f"Raw S3 Response: {response}")
 
     if "Contents" not in response:
         return []
 
     document_names = [obj["Key"].split("/")[-1] for obj in response["Contents"]]
-    print(f"📄 Matched Documents: {document_names}")
+    print(f"Matched Documents: {document_names}")
     return document_names
 
 

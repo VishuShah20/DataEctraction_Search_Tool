@@ -33,16 +33,16 @@ for model in candidate_models:
     try:
         response = requests.post(API_URL, headers=headers, json=data)
         response.raise_for_status()
-        print(f"✅ Access granted to model: {model}")
+        print(f"Access granted to model: {model}")
         print("Response:", response.json())
-        break  # Stop after first working model
+        break  #stop after the first successful model
     except requests.exceptions.HTTPError as e:
         if e.response.status_code == 404:
-            print(f"❌ Model not found: {model}")
+            print(f"Model not found: {model}")
         elif e.response.status_code == 401:
-            print("❌ Invalid API key or permission denied.")
+            print("Invalid API key or permission denied.")
             break
         else:
-            print(f"❌ Error for model {model}:", e.response.text)
+            print(f"Error for model {model}:", e.response.text)
     except Exception as ex:
-        print(f"❌ General error for model {model}: {ex}")
+        print(f"General error for model {model}: {ex}")

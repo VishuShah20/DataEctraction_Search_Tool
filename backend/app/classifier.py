@@ -5,14 +5,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Zero-shot classification setup
 zero_shot_classifier = pipeline("zero-shot-classification")
 candidate_labels = ["invoice", "contract", "purchase order", "other"]
 
-# Confidence threshold
-CONFIDENCE_THRESHOLD = 0.7  # You can adjust this as needed
+CONFIDENCE_THRESHOLD = 0.7 #zero-shot
 
-# Anthropic API Key (ensure your .env has the correct key)
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 ANTHROPIC_API_URL = "https://api.anthropic.com/v1/complete"
 
@@ -21,14 +18,14 @@ def classify_document(text: str) -> str:
     Primary classification function.
     Uses zero-shot pipeline first; if confidence is below the threshold, fall back to Anthropic.
     """
-    # 1. Zero-shot classification
+    #Zero-shot classification
     result = zero_shot_classifier(text, candidate_labels)
-    top_label = result["labels"][0]       # top predicted label
-    top_score = result["scores"][0]       # confidence score for top label
+    top_label = result["labels"][0]       #top predicted label
+    top_score = result["scores"][0]       # Confidence score for top label
 
     print(f"[Zero-shot] top_label={top_label}, score={top_score:.4f}")
 
-    # 2. Check confidence threshold
+    #Check confidence threshold
     if top_score < CONFIDENCE_THRESHOLD:
         print(f"[Zero-shot] Confidence below {CONFIDENCE_THRESHOLD}, calling Anthropic fallback...")
         # Fallback to Anthropic if zero-shot confidence is too low
@@ -36,7 +33,6 @@ def classify_document(text: str) -> str:
         print(f"[Anthropic] Fallback label={anthropic_label}")
         return anthropic_label
     else:
-        # Return the top_label from zero-shot classifier
         print(f"[Zero-shot] Confidence above {CONFIDENCE_THRESHOLD}, returning {top_label}")
         return top_label
 

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
 const DocumentDetails: React.FC = () => {
-    const { documentId } = useParams(); // Access the documentId from URL params
+    const { documentId } = useParams(); 
     const [documentDetails, setDocumentDetails] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
@@ -18,7 +18,7 @@ const DocumentDetails: React.FC = () => {
         setLoading(true);
         setError('');
         try {
-            const response = await fetch(`http://localhost:8000/document_details/${documentId}?email=user@example.com`); // Pass email dynamically
+            const response = await fetch(`http://localhost:8000/document_details/${documentId}?email=user@example.com`); //pass email dynamically
             const data = await response.json();
             if (response.ok) {
                 setDocumentDetails(data);

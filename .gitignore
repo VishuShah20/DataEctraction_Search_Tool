@@ -1,19 +1,17 @@
-# Python virtual env
 dataenv/
 __pycache__/
 *.pyc
 
-# Environment variables
+
 .env
 
-# Uploads and temp files
 uploads/
 *.txt
 *.pdf
 
-# VSCode or IDE stuff
+
 .vscode/
 .idea/
 
-# OS junk
+
 .DS_Store

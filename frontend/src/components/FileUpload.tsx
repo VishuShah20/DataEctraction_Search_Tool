@@ -4,25 +4,25 @@ import ChatBot from './ChatBot';
 const FileUpload: React.FC = () => {
     const [file, setFile] = useState<File | null>(null);
     const [documentType, setDocumentType] = useState<string | null>(null);
-    const [emailInput, setEmailInput] = useState<string>(''); // Track email input
-    const [emailSubmitted, setEmailSubmitted] = useState<boolean>(false); // Track email submission status
-    const [emailError, setEmailError] = useState<string>(''); // Track any email errors
-    const [documents, setDocuments] = useState<any[]>([]); // Track documents
-    const [documentDetails, setDocumentDetails] = useState<any>(null); // Track document details
-    const [loadingDetails, setLoadingDetails] = useState<boolean>(false); // Loading state for details
+    const [emailInput, setEmailInput] = useState<string>(''); //Track email input
+    const [emailSubmitted, setEmailSubmitted] = useState<boolean>(false); //Track email submission status
+    const [emailError, setEmailError] = useState<string>(''); //Track any email errors
+    const [documents, setDocuments] = useState<any[]>([]); //track documents
+    const [documentDetails, setDocumentDetails] = useState<any>(null); // track document details
+    const [loadingDetails, setLoadingDetails] = useState<boolean>(false); //Loading state for details
 
     const handleEmailSubmit = (e: React.FormEvent) => {
-        e.preventDefault(); // Prevent the default form submission
+        e.preventDefault(); // Prevent default form submission
         if (!emailInput || !/\S+@\S+\.\S+/.test(emailInput)) {
             setEmailError("Please enter a valid email.");
             return;
         }
-        setEmailSubmitted(true); // Set email as submitted
-        setEmailError(''); // Reset email error
-        fetchDocuments(emailInput); // Fetch documents when email is submitted
+        setEmailSubmitted(true); 
+        setEmailError(''); 
+        fetchDocuments(emailInput);
     };
 
-    // Fetch documents for the user based on email
+    // fetch documents for the user based on email
     const fetchDocuments = async (email: string) => {
         try {
             const response = await fetch(`http://localhost:8000/documents?email=${email}`);
@@ -66,7 +66,7 @@ const FileUpload: React.FC = () => {
         }
     };
 
-    // Fetch document details based on document ID (independently of download)
+    // fetch document details based on document ID (independently of download)
     const fetchDocumentDetails = async () => {
         setLoadingDetails(true);
         try {
@@ -106,14 +106,14 @@ const FileUpload: React.FC = () => {
                     <button onClick={handleUpload}>Upload PDF</button>
                     {documentType && <p>Document Type: {documentType}</p>}
 
-                    {/* Display documents if there are any */}
+                    {/*dsplay docs if aany*/}
                     {documents.length > 0 && (
                         <div>
                             <h3>Your Documents</h3>
                             <ul>
                                 {documents.map((doc, index) => (
                                     <li key={index}>
-                                        {/* Link to download the document from S3 */}
+                                        {/* Link to download the doc*/}
                                         <a href={`https://s3.amazonaws.com/gentlyai/${doc.document_url}`} target="_blank" rel="noopener noreferrer">
                                             {doc.document_name}
                                         </a>
@@ -125,12 +125,12 @@ const FileUpload: React.FC = () => {
 
                     <button onClick={fetchDocumentDetails}>Get Key Detail</button>
 
-                    {/* Display document details if available in table format */}
+                    {}
                     {documentDetails && (
                         <div>
                             <h3>Key Document Details</h3>
 
-                            {/* Invoices Table */}
+                            {}
                             {documentDetails.invoices && (
                                 <div>
                                     <h4>Invoices:</h4>
@@ -157,7 +157,7 @@ const FileUpload: React.FC = () => {
                                 </div>
                             )}
 
-                            {/* Purchase Orders Table */}
+                            {}
                             {documentDetails.purchase_orders && (
                                 <div>
                                     <h4>Purchase Orders:</h4>

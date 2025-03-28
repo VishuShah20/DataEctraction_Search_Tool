@@ -1,4 +1,3 @@
-# main.py
 
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,15 +15,12 @@ from pydantic import BaseModel
 
 
 
-# Load environment variables
 load_dotenv()
 
-# S3 Bucket Name
 BUCKET_NAME = "gentlyai"
 
 app = FastAPI()
 
-# CORS Setup
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -49,7 +45,7 @@ async def upload_document(
         with open(local_path, "wb") as f:
             f.write(file.file.read())
 
-        # Extract and classify
+        #Extract and classify
         text = extract_text_from_pdf(local_path)
         doc_type = classify_document(text)
         print(f"Document type: {doc_type}")
@@ -59,7 +55,7 @@ async def upload_document(
         with open(extracted_text_path, "w") as txtf:
             txtf.write(text)
 
-        # Upload to S3 using email as the ID
+        #Upload to S3 using email as the ID
         doc_s3_key = upload_file_to_s3(local_path, email, "documents")
         text_s3_key = upload_file_to_s3(extracted_text_path, email, "extractedtexts")
 
@@ -73,7 +69,7 @@ async def upload_document(
             "document_type": doc_type,
             "document_url": f"s3://{BUCKET_NAME}/{doc_s3_key}",
             "extracted_text_url": f"s3://{BUCKET_NAME}/{text_s3_key}",
-            "extracted_data": extracted_data  # Return extracted data
+            "extracted_data": extracted_data  
         }
 
     except Exception as e:
@@ -86,7 +82,7 @@ async def get_documents(email: str):
     Fetch all documents uploaded by the user (based on email ID).
     """
     try:
-        # Get all documents for the user from S3 (based on email ID)
+        # get all documents for the user from S3(based on email ID)
         documents = get_documents_for_user(email)
         
         if not documents:
@@ -109,11 +105,10 @@ async def get_key_details(email: str):
         invoices = get_invoices_by_email(email)
         purchase_orders = get_purchase_orders_by_email(email)
 
-        # If no data found, raise a 404
         if not invoices and not purchase_orders:
             raise HTTPException(status_code=404, detail="No documents found for this email.")
 
-        # Combine both invoices and purchase orders
+        # combine both invoices and purchase orders
         document_details = {
             "invoices": invoices,
             "purchase_orders": purchase_orders
@@ -133,16 +128,16 @@ async def search_answer(payload: SearchRequest):
         query = payload.query
         email = payload.email
 
-        # Step 1: Perform fuzzy search
+        #fuzzy search
         search_results = search_documents(query, email)
 
         if not search_results:
             raise HTTPException(status_code=404, detail="No relevant documents found for this query.")
         
-        # Step 2: Extract text
+        #Extract text
         relevant_text = " ".join([result["relevant_text"] for result in search_results])
 
-        # Step 3: Generate answer
+        # Generate answer
         answer = generate_answer(relevant_text, query)
 
         if not answer:
