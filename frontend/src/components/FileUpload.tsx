@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ChatBot from './ChatBot';
 
 const FileUpload: React.FC = () => {
     const [file, setFile] = useState<File | null>(null);
@@ -187,6 +188,15 @@ const FileUpload: React.FC = () => {
 
                     {loadingDetails && <p>Loading document details...</p>}
                 </div>
+            )}
+
+            {emailSubmitted && (
+            <div>
+                {/* Existing stuff... */}
+
+                <h3>Ask a Question</h3>
+                <ChatBot email={emailInput} />
+            </div>
             )}
         </div>
     );
