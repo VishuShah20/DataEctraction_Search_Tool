@@ -1,0 +1,21 @@
+/* src/styles/App.css */
+.App {
+  text-align: center;
+  padding: 20px;
+}
+
+input[type="file"] {
+  margin: 10px;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #45a049;
+}

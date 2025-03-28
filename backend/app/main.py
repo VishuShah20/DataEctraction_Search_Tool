@@ -1,0 +1,165 @@
+# main.py
+
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form
+from fastapi.middleware.cors import CORSMiddleware
+import os
+from dotenv import load_dotenv
+from app.utils import extract_text_from_pdf
+from app.utils import extract_text_from_pdf, extract_data_based_on_type
+from app.classifier import classify_document
+from app.s3_utils import upload_file_to_s3
+from app.s3_utils import get_documents_for_user
+from app.database import get_invoices_by_email, get_purchase_orders_by_email
+from app.search import search_documents
+from app.search import generate_answer
+from pydantic import BaseModel
+
+
+
+# Load environment variables
+load_dotenv()
+
+# S3 Bucket Name
+BUCKET_NAME = "gentlyai"
+
+app = FastAPI()
+
+# CORS Setup
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class SearchRequest(BaseModel):
+    query: str
+    email: str
+
+@app.post("/upload_document/")
+async def upload_document(
+    file: UploadFile = File(...),
+    email: str = Form(...)
+):
+    try:
+        os.makedirs("uploads", exist_ok=True)
+        local_path = os.path.join("uploads", file.filename)
+        print("local path:", local_path)
+        with open(local_path, "wb") as f:
+            f.write(file.file.read())
+
+        # Extract and classify
+        text = extract_text_from_pdf(local_path)
+        doc_type = classify_document(text)
+        print(f"Document type: {doc_type}")
+
+        extracted_text_path = local_path[:-4] + ".txt"
+        print("extracted text path:", extracted_text_path)
+        with open(extracted_text_path, "w") as txtf:
+            txtf.write(text)
+
+        # Upload to S3 using email as the ID
+        doc_s3_key = upload_file_to_s3(local_path, email, "documents")
+        text_s3_key = upload_file_to_s3(extracted_text_path, email, "extractedtexts")
+
+
+        extracted_data = extract_data_based_on_type(text, doc_type, email, file.filename)
+
+
+
+        return {
+            "message": "Uploaded and processed successfully.",
+            "document_type": doc_type,
+            "document_url": f"s3://{BUCKET_NAME}/{doc_s3_key}",
+            "extracted_text_url": f"s3://{BUCKET_NAME}/{text_s3_key}",
+            "extracted_data": extracted_data  # Return extracted data
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+@app.get("/documents")
+async def get_documents(email: str):
+    """
+    Fetch all documents uploaded by the user (based on email ID).
+    """
+    try:
+        # Get all documents for the user from S3 (based on email ID)
+        documents = get_documents_for_user(email)
+        
+        if not documents:
+            raise HTTPException(status_code=404, detail="No documents found for this user.")
+        
+        return {"documents": documents}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    
+
+@app.get("/get_key_details")
+async def get_key_details(email: str):
+    """
+    Fetch all documents (invoices and purchase orders) associated with the user's email from PostgreSQL.
+    """
+    try:
+        # Fetch all invoices and purchase orders for the user from PostgreSQL
+        invoices = get_invoices_by_email(email)
+        purchase_orders = get_purchase_orders_by_email(email)
+
+        # If no data found, raise a 404
+        if not invoices and not purchase_orders:
+            raise HTTPException(status_code=404, detail="No documents found for this email.")
+
+        # Combine both invoices and purchase orders
+        document_details = {
+            "invoices": invoices,
+            "purchase_orders": purchase_orders
+        }
+
+        return document_details
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+
+
+@app.post("/search_answer/")
+async def search_answer(payload: SearchRequest):
+    try:
+        query = payload.query
+        email = payload.email
+
+        # Step 1: Perform fuzzy search
+        search_results = search_documents(query, email)
+
+        if not search_results:
+            raise HTTPException(status_code=404, detail="No relevant documents found for this query.")
+        
+        # Step 2: Extract text
+        relevant_text = " ".join([result["relevant_text"] for result in search_results])
+
+        # Step 3: Generate answer
+        answer = generate_answer(relevant_text, query)
+
+        if not answer:
+            raise HTTPException(status_code=500, detail="Error generating an answer.")
+
+        return {
+            "answer": answer,
+            "source_documents": [result["document_name"] for result in search_results]
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    
+
+
+
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the Data Extraction API"}
