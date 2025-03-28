@@ -7,6 +7,7 @@ would add request tracing for better observability and debugging.'''
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 import os
+from models import create_tables
 from dotenv import load_dotenv
 from app.utils import extract_text_from_pdf
 from app.utils import extract_text_from_pdf, extract_data_based_on_type
@@ -26,6 +27,10 @@ BUCKET_NAME = "gentlyai"
 
 '''In production, deploy with multiple FastAPI replicas behind a load balancer. Scale based on rpm and DB connection limits'''
 app = FastAPI()
+
+@app.on_event("startup")
+def on_startup():
+    create_tables()
 
 app.add_middleware(
     CORSMiddleware,
