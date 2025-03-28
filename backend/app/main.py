@@ -35,9 +35,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-'''class SearchRequest(BaseModel):
+class SearchRequest(BaseModel):
     query: str
-    email: str'''
+    email: str
 
 
 
