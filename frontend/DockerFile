@@ -1,28 +1,26 @@
 # Step 1: Build the React app
-FROM node:16 AS build
+FROM node:18 AS build
 
 WORKDIR /app
 
-# Install dependencies
-COPY frontend/package.json frontend/package-lock.json ./
+COPY package.json package-lock.json ./
 RUN npm install
 
-# Copy the frontend source code
-COPY frontend/src ./src
-COPY frontend/public ./public
-COPY frontend/index.html ./index.html
+# Copy all config files needed by 'npm run build'
+COPY tsconfig.app.json ./tsconfig.app.json
+COPY tsconfig.json ./tsconfig.json
+# If you have a tsconfig.node.json or other file, copy that too
+COPY src ./src
+COPY public ./public
+COPY index.html ./index.html
+COPY vite.config.js ./vite.config.js
 
 # Build the app
 RUN npm run build
 
 # Step 2: Serve the app using Nginx
 FROM nginx:alpine
-
-# Copy the build output from the previous step
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Expose port 80 to access the app
 EXPOSE 80
-
-# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
