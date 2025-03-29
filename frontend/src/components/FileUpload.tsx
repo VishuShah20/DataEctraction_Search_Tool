@@ -77,6 +77,7 @@ const FileUpload: React.FC = () => {
         try {
             const response = await fetch(`http://localhost:8000/get_key_details?email=${emailInput}`);
             const data = await response.json();
+            
             console.log("Fetched Document Details:", data);
             if (response.ok) {
                 setDocumentDetails(data);

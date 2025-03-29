@@ -172,7 +172,9 @@ def get_invoice_by_document(document_name: str, email: str):
     try:
         # query the invoices table for the given document name and email
         cursor.execute("""
-            SELECT * FROM invoices WHERE document_name = %s AND user_email = %s
+            SELECT document_name, date, total_amount, vendor_name 
+            FROM invoices 
+            WHERE document_name = %s AND user_email = %s
         """, (document_name, email))
 
         invoice = cursor.fetchone()
@@ -183,10 +185,10 @@ def get_invoice_by_document(document_name: str, email: str):
 
         #return data as a dictionary
         invoice_data = {
-            "invoice_number": invoice[7], 
-            "invoice_date": invoice[2],
-            "total_amount": invoice[4],
-            "vendor_name": invoice[4]
+            "invoice_name": invoice[0],  
+            "invoice_date": invoice[1],  
+            "total_amount": invoice[2],  
+            "vendor_name": invoice[3]    
         }
 
         return invoice_data
@@ -210,21 +212,23 @@ def get_invoices_by_email(email: str):
 
     try:
         cursor.execute("""
-            SELECT * FROM invoices WHERE user_email = %s
+            SELECT document_name, date, total_amount, vendor_name 
+            FROM invoices 
+            WHERE user_email = %s
         """, (email,))
         
         invoices = cursor.fetchall()
-        print(f"Fetched invoices: {invoices}") 
+        #print(f"Fetched invoices: {invoices}") 
         invoice_data = []
         for invoice in invoices:
             invoice_data.append({
-                "invoice_number": invoice[7], 
-                "invoice_date": invoice[2],
-                "total_amount": invoice[4],
-                "vendor_name": invoice[4]
+                "invoice_name": invoice[0],  
+                "invoice_date": invoice[1],  
+                "total_amount": invoice[2],  
+                "vendor_name": invoice[3]    
             })
 
-        print(f"Invoice data: {invoice_data}")
+        #print(f"Invoice data: {invoice_data}")
 
         return invoice_data
 
@@ -246,17 +250,20 @@ def get_purchase_orders_by_email(email: str):
 
     try:
         cursor.execute("""
-            SELECT * FROM purchase_orders WHERE user_email = %s
+            SELECT document_name, order_date, total_amount, supplier_name 
+            FROM purchase_orders 
+            WHERE user_email = %s
         """, (email,))
         
         purchase_orders = cursor.fetchall()
+        print(f"Fetched purchase orders: {purchase_orders}")
         purchase_order_data = []
         for order in purchase_orders:
             purchase_order_data.append({
-                "purchase_order_name": order[2],
-                "order_date": order[4],
-                "total_amount": order[5],
-                "supplier_name": order[6]
+                "purchase_order_name": order[0],
+                "order_date": order[1],
+                "total_amount": order[2],
+                "supplier_name": order[3]
             })
 
         print(f"Purchase order data: {purchase_order_data}")
