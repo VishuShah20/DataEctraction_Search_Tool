@@ -40,7 +40,9 @@ git clone https://github.com/VishuShah20/DataEctraction_Search_Tool.git <br>
 cd DataEctraction_Search_Tool <br>
 cp .env.example .env (or add .env yourself) <br>
 docker-compose up --build <br>
-docker-compose up -d <br>
+docker-compose up -d <br><br>
+Once the docker is up wait for about 10 seconds for the classifier to load<br>
+You will require the .env file to run it<br>
 
 
 
