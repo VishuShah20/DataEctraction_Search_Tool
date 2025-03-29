@@ -15,7 +15,7 @@ services:
   backend:
     build: ./backend
     environment:
-      DATABASE_URL: postgresql://VishuShah:Vjune202001@db/data_extraction
+      DATABASE_URL: postgresql://VishuShah:Vjune202001@db:5432/data_extraction
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}

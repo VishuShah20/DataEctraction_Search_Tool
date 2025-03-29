@@ -8,29 +8,57 @@ import psycopg2
 from dotenv import load_dotenv
 import os
 from datetime import datetime
+import time
+from urllib.parse import urlparse
+
 
 load_dotenv()
 
-DB_HOST = os.getenv("DB_HOST")
+'''DB_HOST = os.getenv("DB_HOST")
+print("DB_HOST:", DB_HOST)
 DB_NAME = os.getenv("DB_NAME")
 DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_PASSWORD = os.getenv("DB_PASSWORD")'''
+DATABASE_URL = os.getenv("DATABASE_URL")
 AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 
 
+'''def connect_db():
+    retries = 5
+    for i in range(retries):
+        try:
+            conn = psycopg2.connect(
+                host=DB_HOST,
+                database=DB_NAME,
+                user=DB_USER,
+                password=DB_PASSWORD
+            )
+            return conn
+        except Exception as e:
+            print(f"Error connecting to PostgreSQL: {e}")
+            time.sleep(10)  # wait for 5 seconds before retrying
+    return None'''
+
 def connect_db():
-    try:
-        conn = psycopg2.connect(
-            host=DB_HOST,
-            database=DB_NAME,
-            user=DB_USER,
-            password=DB_PASSWORD
-        )
-        return conn
-    except Exception as e:
-        print(f"Error connecting to PostgreSQL: {e}")
-        return None
+    retries = 5
+    for i in range(retries):
+        try:
+            # Parsing the DATABASE_URL and establishing the connection
+            result = urlparse(DATABASE_URL)
+            print(f"Connecting to DB at {result.hostname}:{result.port} with database {result.path[1:]}")
+            conn = psycopg2.connect(
+                host=result.hostname,
+                port=result.port,
+                database=result.path[1:], 
+                user=result.username,
+                password=result.password
+            )
+            return conn
+        except Exception as e:
+            print(f"Error connecting to PostgreSQL: {e}")
+            time.sleep(3)  
+    return None
 
 #insert data into the invoices table
 def insert_invoice_data(data: dict):
@@ -64,7 +92,7 @@ def insert_invoice_data(data: dict):
         """, (user_email, document_name, invoice_number, invoice_date, total_amount, vendor_name, datetime.now()))
 
         conn.commit()
-        print(f" Invoice data inserted for {user_email}")
+        print(f" All the data inserted: ", user_email, document_name, invoice_number, invoice_date, total_amount, vendor_name)
 
     except Exception as e:
         # More detailed debugging: log the error
@@ -148,16 +176,17 @@ def get_invoice_by_document(document_name: str, email: str):
         """, (document_name, email))
 
         invoice = cursor.fetchone()
+        print(f"Fetched invoice: {invoice}")
 
         if not invoice:
             return None
 
         #return data as a dictionary
         invoice_data = {
-            "invoice_number": invoice[2], 
-            "invoice_date": invoice[3],
+            "invoice_number": invoice[7], 
+            "invoice_date": invoice[2],
             "total_amount": invoice[4],
-            "vendor_name": invoice[5]
+            "vendor_name": invoice[4]
         }
 
         return invoice_data
@@ -185,13 +214,14 @@ def get_invoices_by_email(email: str):
         """, (email,))
         
         invoices = cursor.fetchall()
+        print(f"Fetched invoices: {invoices}") 
         invoice_data = []
         for invoice in invoices:
             invoice_data.append({
-                "invoice_name": invoice[2],
-                "invoice_date": invoice[4],
-                "total_amount": invoice[5],
-                "vendor_name": invoice[6]
+                "invoice_number": invoice[7], 
+                "invoice_date": invoice[2],
+                "total_amount": invoice[4],
+                "vendor_name": invoice[4]
             })
 
         print(f"Invoice data: {invoice_data}")

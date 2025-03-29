@@ -27,6 +27,7 @@ const FileUpload: React.FC = () => {
         try {
             const response = await fetch(`http://localhost:8000/documents?email=${email}`);
             const data = await response.json();
+            console.log("Fetched Documents:", data);
             if (response.ok) {
                 setDocuments(data.documents);
             } else {
@@ -51,12 +52,16 @@ const FileUpload: React.FC = () => {
         const formData = new FormData();
         formData.append("file", file);
         formData.append("email", emailInput);
+        console.log("Uploading file with email:", emailInput, "File:", file);
+
+        console.log("Uploading email:", emailInput, file);
 
         try {
             const response = await fetch("http://localhost:8000/upload_document/", {
                 method: "POST",
                 body: formData,
             });
+            console.log("Response:", response);
             const data = await response.json();
             setDocumentType(data.document_type);
             alert("File uploaded successfully!");
@@ -72,6 +77,7 @@ const FileUpload: React.FC = () => {
         try {
             const response = await fetch(`http://localhost:8000/get_key_details?email=${emailInput}`);
             const data = await response.json();
+            console.log("Fetched Document Details:", data);
             if (response.ok) {
                 setDocumentDetails(data);
             } else {
@@ -129,6 +135,7 @@ const FileUpload: React.FC = () => {
                     {documentDetails && (
                         <div>
                             <h3>Key Document Details</h3>
+                            {console.log("Document Details to display:", documentDetails)}
 
                             {}
                             {documentDetails.invoices && (
@@ -152,6 +159,7 @@ const FileUpload: React.FC = () => {
                                                     <td style={{ border: '1px solid black', padding: '8px' }}>{invoice.vendor_name}</td>
                                                 </tr>
                                             ))}
+                                            
                                         </tbody>
                                     </table>
                                 </div>
