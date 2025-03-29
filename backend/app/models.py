@@ -8,6 +8,8 @@ load_dotenv()
 
 
 DATABASE_URL = os.getenv("DATABASE_URL")  #postgres://user:password@localhost/dbname
+AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 
 
 Base = declarative_base()

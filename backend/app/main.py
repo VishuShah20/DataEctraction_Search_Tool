@@ -7,7 +7,7 @@ would add request tracing for better observability and debugging.'''
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 import os
-from models import create_tables
+from .models import create_tables
 from dotenv import load_dotenv
 from app.utils import extract_text_from_pdf
 from app.utils import extract_text_from_pdf, extract_data_based_on_type
@@ -24,6 +24,9 @@ from pydantic import BaseModel
 load_dotenv()
 
 BUCKET_NAME = "gentlyai"
+
+AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 
 '''In production, deploy with multiple FastAPI replicas behind a load balancer. Scale based on rpm and DB connection limits'''
 app = FastAPI()

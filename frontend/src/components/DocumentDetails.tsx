@@ -18,7 +18,7 @@ const DocumentDetails: React.FC = () => {
         setLoading(true);
         setError('');
         try {
-            const response = await fetch(`http://localhost:8000/document_details/${documentId}?email=user@example.com`); //pass email dynamically
+            const response = await fetch(`http://backend:8000/document_details/${documentId}?email=user@example.com`); //pass email dynamically
             const data = await response.json();
             if (response.ok) {
                 setDocumentDetails(data);

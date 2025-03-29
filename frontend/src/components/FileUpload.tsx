@@ -25,7 +25,7 @@ const FileUpload: React.FC = () => {
     // fetch documents for the user based on email
     const fetchDocuments = async (email: string) => {
         try {
-            const response = await fetch(`http://localhost:8000/documents?email=${email}`);
+            const response = await fetch(`http://backend:8000/documents?email=${email}`);
             const data = await response.json();
             if (response.ok) {
                 setDocuments(data.documents);
@@ -53,7 +53,7 @@ const FileUpload: React.FC = () => {
         formData.append("email", emailInput);
 
         try {
-            const response = await fetch("http://localhost:8000/upload_document/", {
+            const response = await fetch("http://backend:8000/upload_document/", {
                 method: "POST",
                 body: formData,
             });
@@ -70,7 +70,7 @@ const FileUpload: React.FC = () => {
     const fetchDocumentDetails = async () => {
         setLoadingDetails(true);
         try {
-            const response = await fetch(`http://localhost:8000/get_key_details?email=${emailInput}`);
+            const response = await fetch(`http://backend:8000/get_key_details?email=${emailInput}`);
             const data = await response.json();
             if (response.ok) {
                 setDocumentDetails(data);

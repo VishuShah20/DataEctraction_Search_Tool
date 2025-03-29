@@ -21,6 +21,8 @@ CONFIDENCE_THRESHOLD = 0.7 #zero-shot
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 ANTHROPIC_API_URL = "https://api.anthropic.com/v1/complete"
+AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 
 def classify_document(text: str) -> str:
     """

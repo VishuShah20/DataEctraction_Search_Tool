@@ -24,7 +24,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ email }) => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/search_answer/', {
+      const response = await fetch('http://backend:8000/search_answer/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query, email })

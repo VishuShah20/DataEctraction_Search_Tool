@@ -1,0 +1,35 @@
+#version: '3.7'
+
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: VishuShah
+      POSTGRES_PASSWORD: Vjune202001
+      POSTGRES_DB: data_extraction
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql://VishuShah:Vjune202001@db/data_extraction
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
