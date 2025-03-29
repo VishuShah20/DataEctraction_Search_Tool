@@ -10,6 +10,7 @@ const FileUpload: React.FC = () => {
     const [documents, setDocuments] = useState<any[]>([]); //track documents
     const [documentDetails, setDocumentDetails] = useState<any>(null); // track document details
     const [loadingDetails, setLoadingDetails] = useState<boolean>(false); //Loading state for details
+    const [uploading, setUploading] = useState<boolean>(false);
 
     const handleEmailSubmit = (e: React.FormEvent) => {
         e.preventDefault(); // Prevent default form submission
@@ -49,6 +50,8 @@ const FileUpload: React.FC = () => {
         if (!file) return alert("Please select a file first.");
         if (!emailInput) return alert("Please submit your email first.");
 
+        setUploading(true);
+
         const formData = new FormData();
         formData.append("file", file);
         formData.append("email", emailInput);
@@ -65,9 +68,12 @@ const FileUpload: React.FC = () => {
             const data = await response.json();
             setDocumentType(data.document_type);
             alert("File uploaded successfully!");
+            fetchDocuments(emailInput);
         } catch (error) {
             console.error(error);
             alert("Error uploading file.");
+        } finally {
+            setUploading(false);
         }
     };
 
@@ -111,6 +117,7 @@ const FileUpload: React.FC = () => {
                     <p>Using email: <strong>{emailInput}</strong></p>
                     <input type="file" accept=".pdf" onChange={handleFileChange} />
                     <button onClick={handleUpload}>Upload PDF</button>
+                    {uploading && <div className="spinner"></div>}
                     {documentType && <p>Document Type: {documentType}</p>}
 
                     {/*dsplay docs if aany*/}
