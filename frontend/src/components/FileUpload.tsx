@@ -208,7 +208,7 @@ const FileUpload: React.FC = () => {
 
             {emailSubmitted && (
             <div>
-                {/* Existing stuff... */}
+                
 
                 <h3>Ask a Question</h3>
                 <ChatBot email={emailInput} />

@@ -6,7 +6,7 @@ import DocumentDetails from './components/DocumentDetails';
 
 const App: React.FC = () => {
   return (
-    <div className="App">
+    <div className="app-wrapper">
       <Router>
         <div className="page-container">
           <h1>Document Management System</h1>
