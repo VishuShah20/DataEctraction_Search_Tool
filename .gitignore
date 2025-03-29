@@ -2,9 +2,6 @@ dataenv/
 __pycache__/
 *.pyc
 
-
-.env
-
 uploads/
 *.pdf
 
