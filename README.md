@@ -1,4 +1,5 @@
-If in case the docker is not setup when you review it(it probably does not work properly yet). Below are the instructions to run the system locally. <br><br>Overview of the project is in the end, and all the possible optimizations and improvements I would do are commented all over the code under '''comment type''': <br><br><br>
+Please check docker instructions below. <br><br>
+Below are the instructions to run the system locally. <br><br>Overview of the project is in the end, and all the possible optimizations and improvements I would do are commented all over the code under '''comment type''': <br><br><br>
 
 How to run: <br>
 
