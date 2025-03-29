@@ -5,6 +5,7 @@ __pycache__/
 uploads/
 *.pdf
 
+.env
 
 .vscode/
 .idea/
