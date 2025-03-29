@@ -30,3 +30,14 @@ cd ../frontend<br>
 npm install<br>
 npm run dev<br>
 Then visit http://localhost:5173<br>
+
+
+
+
+Docker how to run:
+
+git clone https://github.com/VishuShah20/DataEctraction_Search_Tool.git <br>
+cd DataEctraction_Search_Tool <br>
+cp .env.example .env (or add .env yourself) <br>
+docker-compose up --build <br>
+docker-compose up -d <br>
