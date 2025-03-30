@@ -1,5 +1,6 @@
 Please check docker instructions below. <br><br>
-Below are the instructions to run the system locally. <br><br>Overview of the project is in the end, and all the possible optimizations and improvements I would do are commented all over the code under '''comment type''': <br><br><br>
+Below are the instructions to run the system locally. <br><br>Overview of the project is in the end, and all the possible optimizations and improvements I would do are commented all over the code under '''comment type''':<br><br>
+I used FastAPI here in place of Node.js and express as I'm comfotable with FastAPI currently. I have had experience with Node.js as well.  <br><br><br>
 
 How to run: <br>
 
