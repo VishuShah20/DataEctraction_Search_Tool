@@ -30,3 +30,13 @@ button:hover {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+@media (prefers-color-scheme: light) {
+  a {
+    color: #0050b3;;
+  }
+
+  a:hover {
+    color: #4b11d0;
+  }
+}
