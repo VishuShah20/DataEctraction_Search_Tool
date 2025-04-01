@@ -17,17 +17,18 @@ ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
 AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 
-def extract_text_from_pdf(pdf_path: str) -> str:
+def extract_text_from_pdf(file_data) -> str:
     """
-    Extracts text from a PDF document
+    Extracts text from a PDF document.
     """
-    document = fitz.open(pdf_path)
+    # Use PyMuPDF (fitz) to extract text from the file-like object.
+    document = fitz.open(stream=file_data, filetype="pdf")
     text = ""
 
     for page_num in range(document.page_count):
         page = document.load_page(page_num)
-        text += page.get_text()  # extract text from each page
-    
+        text += page.get_text()  # Extract text from each page
+
     return text
 
 def extract_invoice_details_with_anthropic(text: str, document_type: str):

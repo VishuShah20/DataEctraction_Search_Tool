@@ -85,6 +85,9 @@ def insert_invoice_data(data: dict):
         print(f"Total Amount: {total_amount}")
         print(f"Vendor Name: {vendor_name}")
 
+        invoice_date = None if invoice_date == "None" or invoice_date == "" else invoice_date
+        total_amount = None if total_amount == "None" or total_amount == "" else total_amount
+
         #execute insert query
         cursor.execute("""
             INSERT INTO invoices (user_email, document_name, invoice_number, date, total_amount, vendor_name, created_at)
@@ -133,6 +136,9 @@ def insert_purchase_order_data(data: dict):
         print(f"Order Date: {order_date}")
         print(f"Total Amount: {total_amount}")
         print(f"Supplier Name: {supplier_name}")
+
+        order_date = None if order_date == "None" or order_date == "" else order_date
+        total_amount = None if total_amount == "None" or total_amount == "" else total_amount
 
         cursor.execute("""
             INSERT INTO purchase_orders (user_email, document_name, purchase_order_number, order_date, total_amount, supplier_name, created_at)

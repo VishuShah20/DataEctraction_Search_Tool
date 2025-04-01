@@ -18,6 +18,7 @@ from app.database import get_invoices_by_email, get_purchase_orders_by_email
 from app.search import search_documents
 from app.search import generate_answer
 from pydantic import BaseModel
+import io  
 
 
 
@@ -59,31 +60,29 @@ async def upload_document(
     
     '''Would remove the local path here, and would directly upload to S3 and retrieve docs and texts from there for details extraction as well'''
     try:
-        os.makedirs("uploads", exist_ok=True)
-        local_path = os.path.join("uploads", file.filename)
-        print("local path:", local_path)
-        with open(local_path, "wb") as f:
-            f.write(file.file.read())
 
-        #Extract and classify
-        text = extract_text_from_pdf(local_path)
+        file_content = await file.read()
+        # Generate a unique S3 path for the uploaded document
+        doc_s3_key = f"documents/{email}_{file.filename}"
+        text_s3_key = f"extractedtexts/{email}_{file.filename}.txt"
+        
+        # Upload the file to S3
+        upload_file_to_s3(io.BytesIO(file_content), doc_s3_key)
+        
+        # Extract the text from the uploaded PDF
+        text = extract_text_from_pdf(io.BytesIO(file_content))
+        
+        # Upload the extracted text to S3
+        text_file = io.BytesIO(text.encode('utf-8'))
+        upload_file_to_s3(text_file, text_s3_key)
+
+        # Classify the document
         doc_type = classify_document(text)
-        print(f"Document type: {doc_type}")
-
-        extracted_text_path = local_path[:-4] + ".txt"
-        print("extracted text path:", extracted_text_path)
-        with open(extracted_text_path, "w") as txtf:
-            txtf.write(text)
-
-        #Upload to S3 using email as the ID
-        doc_s3_key = upload_file_to_s3(local_path, email, "documents")
-        text_s3_key = upload_file_to_s3(extracted_text_path, email, "extractedtexts")
-
-
+        
+        # Extract the necessary data based on the document type
         extracted_data = extract_data_based_on_type(text, doc_type, email, file.filename)
-
-
-
+        
+        # Return the document URL and extracted data
         return {
             "message": "Uploaded and processed successfully.",
             "document_type": doc_type,
@@ -158,11 +157,14 @@ async def search_answer(payload: SearchRequest):
         if not search_results:
             raise HTTPException(status_code=404, detail="No relevant documents found for this query.")
         
+        print(f"[DEBUG] Found {len(search_results)} relevant documents.")
+
+        
         #Extract text
         relevant_text = " ".join([result["relevant_text"] for result in search_results])
 
         # Generate answer
-        answer = generate_answer(relevant_text, query)
+        answer = generate_answer(relevant_text, query, search_results)
 
         if not answer:
             raise HTTPException(status_code=500, detail="Error generating an answer.")

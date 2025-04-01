@@ -22,47 +22,34 @@ EXTRACTED_TEXTS_FOLDER = "extractedtexts/"
 #initialize the S3 client(bucket has public access)
 s3_client = boto3.client("s3", region_name=AWS_REGION)
 
-def upload_file_to_s3(file_path: str, email: str, file_type: str):
+def upload_file_to_s3(file_data, s3_key: str):
     
     #Upload a file to S3. Email is used as a prefix in the filename, not as a folder. file_type is either "documents" or "extractedtexts".
     
-    original_filename = os.path.basename(file_path)
-    s3_key = f"{file_type}/{email}_{original_filename}"
-    print(f"Uploading to S3: {s3_key}") 
-
     try:
-        with open(file_path, "rb") as file_data:
-            s3_client.upload_fileobj(file_data, BUCKET_NAME, s3_key)
-            print(f"Uploaded {file_path} to s3://{BUCKET_NAME}/{s3_key}")
-            return s3_key
+        # Upload the content of the file to S3 using the provided s3_key (document or extracted text)
+        s3_client.upload_fileobj(file_data, BUCKET_NAME, s3_key)
+        print(f"Uploaded to S3: s3://{BUCKET_NAME}/{s3_key}")
+        return s3_key
     except Exception as e:
-        print(f" Error uploading file: {e}")
+        print(f"Error uploading file: {e}")
         raise e
 
-def upload_document_and_text(document_path: str, extracted_text: str):
+def upload_document_and_text(file_data, email: str, doc_filename: str, extracted_text: str):
     """
-    uploads the original document and its extracted text (as a .txt file) to S3.
+    Uploads the original document and its extracted text to S3.
     Returns the S3 keys for both uploads.
     """
-    #generate unique filenames to avoid collisions
-    doc_filename = document_path
-    text_filename = document_path + ".txt"
+    # Define S3 paths (folder structure inside the bucket)
+    s3_doc_path = f"documents/{email}_{doc_filename}"
+    s3_text_path = f"extractedtexts/{email}_{doc_filename}.txt"
     
-    #Define S3 paths (folder structure inside the bucket)
-    s3_doc_path = f"documents/{doc_filename}"
-    s3_text_path = f"extractedtexts/{text_filename}"
-    
-    # Upload the document
-    upload_file_to_s3(document_path, s3_doc_path)
-    
-    #Create a temporary text file
-    text_file_path = document_path + ".txt"
-    with open(text_file_path, "w") as f:
-        f.write(extracted_text)
-    # Upload the extracted text file
-    upload_file_to_s3(text_file_path, s3_text_path)
+    # Upload the document and text directly to S3
+    upload_file_to_s3(file_data, s3_doc_path)
+    upload_file_to_s3(extracted_text.encode(), s3_text_path)
     
     return s3_doc_path, s3_text_path
+
 
 def get_documents_for_user(email: str):
     

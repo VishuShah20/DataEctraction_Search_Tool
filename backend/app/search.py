@@ -35,7 +35,7 @@ EXTRACTED_TEXTS_FOLDER = "extractedtexts/"
 #search documents in S3 using fuzzy matching
 def search_documents(query: str, email: str):
     documents = get_s3_documents(email)
-    print(f"\n Fetched {len(documents)} documents for {email}: {documents}")
+    #print(f"\n Fetched {len(documents)} documents for {email}: {documents}")
 
     results = []
 
@@ -57,31 +57,38 @@ def search_documents(query: str, email: str):
                 top_score = line_score
         print(f"Top score for {doc_name}: {top_score}")
 
-        if top_score > 50:
+        if top_score > 45:
             relevant_text = extract_relevant_text(file_content, query)
-            results.append({
-                "document_name": doc_name,
-                "relevant_text": relevant_text,
-                "score": top_score
-            })
+            if relevant_text:
+                print(f"[DEBUG] Relevant text extracted for {doc_name}: {relevant_text[:100]}...")
+                results.append({
+                    "document_name": doc_name,
+                    "relevant_text": relevant_text,
+                    "score": top_score
+                    })
 
     results.sort(key=lambda x: x["score"], reverse=True)
     print(f"\nReturning {len(results)} matching documents.")
     return results
 
+
 #Function to extract relevant text for the query
-def extract_relevant_text(doc_text: str, query: str):
-    lines = doc_text.split("\n")  # split
-    relevant_text = ""
+def extract_relevant_text(doc_text: str, query: str) -> str:
+    lines = doc_text.split("\n")
     for line in lines:
-        if fuzz.partial_ratio(query, line) > 50:  # comparing query to each line using fuzzy matching
-            relevant_text += line + "\n"
-    return relevant_text
+        if fuzz.partial_ratio(query, line) > 45:
+            return doc_text  #Send full document if any match found
+    return ""
 
 # function to generate an answer from the relevant document content
-def generate_answer(relevant_text: str, query: str):
-    prompt = f"Answer the following question based on the text below:\n\nText:\n{relevant_text}\n\nQuestion: {query}\nAnswer:"
+def generate_answer(relevant_text: str, query: str, search_results: list):
+    context = ""
+    for result in search_results:
+        context += f"Document: {result['document_name']}\nText: {result['relevant_text'][:1000]}\n\n"
 
+    # Create the prompt for the LLM
+    prompt = f"Answer the following question based on the text below. The documents involved are:\n{context}\nQuestion: {query}\nAnswer:"
+    #print(f"[DEBUG] LLM Prompt: {prompt[:1500]}...")
     headers = {
         "x-api-key": ANTHROPIC_API_KEY,
         "anthropic-version": "2023-06-01",
@@ -91,7 +98,7 @@ def generate_answer(relevant_text: str, query: str):
     data = {
         "model": "claude-3-opus-20240229",  
         "max_tokens": 1000,
-        "temperature": 0.7,
+        "temperature": 0.2,
         "system": "You are a helpful assistant that answers questions based on text.",
         "messages": [{"role": "user", "content": prompt}]
     }
