@@ -11,6 +11,7 @@ const FileUpload: React.FC = () => {
     const [documentDetails, setDocumentDetails] = useState<any>(null); // track document details
     const [loadingDetails, setLoadingDetails] = useState<boolean>(false); //Loading state for details
     const [uploading, setUploading] = useState<boolean>(false);
+    const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
     const handleEmailSubmit = (e: React.FormEvent) => {
         e.preventDefault(); // Prevent default form submission
@@ -51,6 +52,7 @@ const FileUpload: React.FC = () => {
         if (!emailInput) return alert("Please submit your email first.");
 
         setUploading(true);
+        setIsProcessing(true);
 
         const formData = new FormData();
         formData.append("file", file);
@@ -67,7 +69,8 @@ const FileUpload: React.FC = () => {
             console.log("Response:", response);
             const data = await response.json();
             setDocumentType(data.document_type);
-            alert("File uploaded successfully!");
+            setIsProcessing(false);
+            //alert("File uploaded successfully!");
             fetchDocuments(emailInput);
         } catch (error) {
             console.error(error);
@@ -76,6 +79,8 @@ const FileUpload: React.FC = () => {
             setUploading(false);
         }
     };
+
+    const uploadButtonDisabled = isProcessing;
 
     // fetch document details based on document ID (independently of download)
     const fetchDocumentDetails = async () => {
@@ -116,7 +121,13 @@ const FileUpload: React.FC = () => {
                 <div>
                     <p>Using email: <strong>{emailInput}</strong></p>
                     <input type="file" accept=".pdf" onChange={handleFileChange} />
-                    <button onClick={handleUpload}>Upload PDF</button>
+
+                    <button onClick=
+                    {handleUpload}
+                    disabled={uploadButtonDisabled}
+                    className={uploadButtonDisabled ? "disabled-button" : ""}>
+                        Upload PDF</button>
+
                     {uploading && <div className="spinner"></div>}
                     {documentType && <p>Document Type: {documentType}</p>}
 

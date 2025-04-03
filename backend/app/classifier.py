@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 zero_shot_classifier = pipeline("zero-shot-classification")
-candidate_labels = ["invoice", "contract", "purchase order", "other"]
+candidate_labels = ["invoice", "contract", "purchase order"]
 
 CONFIDENCE_THRESHOLD = 0.7 #zero-shot
 
