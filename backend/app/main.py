@@ -1,4 +1,3 @@
-
 '''All of the main improvisations are there along with their routes below and in all the other files:
 
 Would add unit tests if had more time. automate CI/CD like GitHub actions

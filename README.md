@@ -9,6 +9,8 @@ How to run: <br>
 	•	PostgreSQL 14+<br>
 	•	Node.js + npm (for frontend)<br>
 	•	Git<br>
+	•	Node v18.20.8
+	
 
 2. git clone https://github.com/VishuShah20/DataEctraction_Search_Tool.git<br>
 
