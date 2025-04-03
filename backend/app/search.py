@@ -22,6 +22,7 @@ from dotenv import load_dotenv
 import os
 import requests
 from app.s3_utils import get_s3_documents, get_s3_file_content
+import re
 
 load_dotenv()
 
@@ -51,13 +52,18 @@ def search_documents(query: str, email: str):
 
         lines = file_content.split("\n")
         top_score = 0
+
+        doc_name_without_email = re.sub(r"^.*?_", "", doc_name)
+        name_score = fuzz.partial_ratio(query, doc_name_without_email)
+        top_score = max(top_score, name_score)
+
         for line in lines:
             line_score = fuzz.partial_ratio(query, line)
             if line_score > top_score:
                 top_score = line_score
         print(f"Top score for {doc_name}: {top_score}")
 
-        if top_score > 45:
+        if top_score > 50:
             relevant_text = extract_relevant_text(file_content, query)
             if relevant_text:
                 print(f"[DEBUG] Relevant text extracted for {doc_name}: {relevant_text[:100]}...")
@@ -68,7 +74,8 @@ def search_documents(query: str, email: str):
                     })
 
     results.sort(key=lambda x: x["score"], reverse=True)
-    print(f"\nReturning {len(results)} matching documents.")
+    top_results = results[:5]
+    print(f"\nReturning {len(top_results)} matching documents.")
     return results
 
 
@@ -78,7 +85,7 @@ def extract_relevant_text(doc_text: str, query: str) -> str:
     for line in lines:
         if fuzz.partial_ratio(query, line) > 45:
             return doc_text  #Send full document if any match found
-    return ""
+    #return ""
 
 # function to generate an answer from the relevant document content
 def generate_answer(relevant_text: str, query: str, search_results: list):
@@ -88,7 +95,7 @@ def generate_answer(relevant_text: str, query: str, search_results: list):
 
     # Create the prompt for the LLM
     prompt = f"Answer the following question based on the text below. The documents involved are:\n{context}\nQuestion: {query}\nAnswer:"
-    #print(f"[DEBUG] LLM Prompt: {prompt[:1500]}...")
+    print(f"[DEBUG] LLM Prompt: {prompt}")
     headers = {
         "x-api-key": ANTHROPIC_API_KEY,
         "anthropic-version": "2023-06-01",
